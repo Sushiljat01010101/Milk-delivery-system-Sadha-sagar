@@ -376,7 +376,7 @@ SUDHA SAGAR milk delivery service में आपका स्वागत ह�
 
 - SUDHA SAGAR DAIRY`;
 
-            const TELEGRAM_BOT_TOKEN = '8414963882:AAHAxN6adnkt5HKV1yXhpGZVpwGv3rNd2yQ';
+            const TELEGRAM_BOT_TOKEN = '8091841977:AAHpSvX3OMAhoOzSy1cDMhaOZB0EUf1k3Bs';
             const telegramUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
             
             const response = await fetch(telegramUrl, {

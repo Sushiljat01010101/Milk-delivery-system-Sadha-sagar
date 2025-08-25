@@ -19,8 +19,6 @@ class PaymentManager {
         this.payments = [];
         this.currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM format
         this.filteredPayments = [];
-        this.selectedCustomerForReminder = null;
-        this.filteredCustomersForReminder = [];
         this.init();
     }
 
@@ -60,27 +58,6 @@ class PaymentManager {
         if (reminderBtn) {
             reminderBtn.addEventListener('click', this.sendPaymentReminders.bind(this));
         }
-
-        // Individual reminder elements
-        const individualReminderSearch = document.getElementById('reminder-customer-search');
-        if (individualReminderSearch) {
-            individualReminderSearch.addEventListener('input', this.handleIndividualSearch.bind(this));
-        }
-
-        const individualReminderSelect = document.getElementById('reminder-customer-select');
-        if (individualReminderSelect) {
-            individualReminderSelect.addEventListener('change', this.handleIndividualSelect.bind(this));
-        }
-
-        const sendIndividualReminderBtn = document.getElementById('send-individual-reminder');
-        if (sendIndividualReminderBtn) {
-            sendIndividualReminderBtn.addEventListener('click', this.sendIndividualReminder.bind(this));
-        }
-
-        const clearReminderBtn = document.getElementById('clear-reminder-selection');
-        if (clearReminderBtn) {
-            clearReminderBtn.addEventListener('click', this.clearReminderSelection.bind(this));
-        }
     }
 
     setCurrentMonth() {
@@ -105,7 +82,6 @@ class PaymentManager {
             ]);
             this.calculatePaymentData();
             this.applyFilters();
-            this.populateCustomerDropdownForReminder();
         } catch (error) {
             console.error('Error loading payment data:', error);
             this.showError('Failed to load payment data');
@@ -429,7 +405,7 @@ class PaymentManager {
 
             const message = `🥛 SUDHA SAGAR DAIRY\n\n💰 ${customer.name}\n\n${monthName} का payment received!\n\n✅ Received: ₹${paymentAmount}\n📊 Total Paid: ₹${totalPaid}\n💸 Total Amount: ₹${totalAmount}\n📋 ${status}\n\nकोई भी query के लिए: 9413577474\n\nधन्यवाद! 🙏\n\n- SUDHA SAGAR DAIRY`;
 
-            const TELEGRAM_BOT_TOKEN = '8414963882:AAHAxN6adnkt5HKV1yXhpGZVpwGv3rNd2yQ';
+            const TELEGRAM_BOT_TOKEN = '8091841977:AAHpSvX3OMAhoOzSy1cDMhaOZB0EUf1k3Bs';
             const telegramUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
             
             const response = await fetch(telegramUrl, {
@@ -468,7 +444,7 @@ class PaymentManager {
 
             const message = `🥛 SUDHA SAGAR DAIRY\n\n🎉 ${customer.name}\n\nआपका ${monthName} का पूरा payment complete हो गया है!\n\n💰 Total Amount: ₹${totalAmount}\n✅ Status: Paid\n\nकोई भी query के लिए: 9413577474\n\nधन्यवाद! 🙏\n\n- SUDHA SAGAR DAIRY`;
 
-            const TELEGRAM_BOT_TOKEN = '8414963882:AAHAxN6adnkt5HKV1yXhpGZVpwGv3rNd2yQ';
+            const TELEGRAM_BOT_TOKEN = '8091841977:AAHpSvX3OMAhoOzSy1cDMhaOZB0EUf1k3Bs';
             const telegramUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
             
             const response = await fetch(telegramUrl, {
@@ -592,7 +568,7 @@ class PaymentManager {
 Payment के लिए contact करें: 9413577474
 - SUDHA SAGAR DAIRY`;
 
-            const TELEGRAM_BOT_TOKEN = '8414963882:AAHAxN6adnkt5HKV1yXhpGZVpwGv3rNd2yQ';
+            const TELEGRAM_BOT_TOKEN = '8091841977:AAHpSvX3OMAhoOzSy1cDMhaOZB0EUf1k3Bs';
             const telegramUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
             
             const response = await fetch(telegramUrl, {
@@ -637,187 +613,6 @@ Payment के लिए contact करें: 9413577474
             month: '2-digit',
             year: 'numeric'
         });
-    }
-
-    // Individual Reminder Methods
-    populateCustomerDropdownForReminder() {
-        const select = document.getElementById('reminder-customer-select');
-        if (!select) return;
-
-        select.innerHTML = '<option value="">Select a customer</option>';
-        
-        // Filter customers with Telegram chat IDs
-        const customersWithTelegram = this.customers.filter(customer => 
-            customer.tg_chat_id && customer.tg_chat_id.trim() !== ''
-        );
-
-        customersWithTelegram.forEach(customer => {
-            const option = document.createElement('option');
-            option.value = customer.id;
-            option.textContent = `${customer.name} - ${customer.phone}`;
-            select.appendChild(option);
-        });
-    }
-
-    handleIndividualSearch(e) {
-        const searchTerm = e.target.value.toLowerCase();
-        const select = document.getElementById('reminder-customer-select');
-        
-        if (searchTerm.length === 0) {
-            select.style.display = 'none';
-            this.clearReminderSelection();
-            return;
-        }
-
-        // Filter customers based on search term
-        this.filteredCustomersForReminder = this.customers.filter(customer => {
-            const hasSearchMatch = customer.name.toLowerCase().includes(searchTerm) ||
-                                  customer.phone.includes(searchTerm);
-            const hasTelegramId = customer.tg_chat_id && customer.tg_chat_id.trim() !== '';
-            return hasSearchMatch && hasTelegramId;
-        });
-
-        // Update dropdown options
-        select.innerHTML = '<option value="">Select from search results...</option>';
-        
-        this.filteredCustomersForReminder.forEach(customer => {
-            const option = document.createElement('option');
-            option.value = customer.id;
-            option.textContent = `${customer.name} - ${customer.phone}`;
-            select.appendChild(option);
-        });
-
-        // Show dropdown if there are results
-        if (this.filteredCustomersForReminder.length > 0) {
-            select.style.display = 'block';
-        } else {
-            select.style.display = 'none';
-        }
-    }
-
-    handleIndividualSelect(e) {
-        const customerId = e.target.value;
-        
-        if (!customerId) {
-            this.clearReminderSelection();
-            return;
-        }
-
-        const customer = this.customers.find(c => c.id === customerId);
-        if (!customer) return;
-
-        this.selectedCustomerForReminder = customer;
-        
-        // Update search input to show selected customer
-        const searchInput = document.getElementById('reminder-customer-search');
-        searchInput.value = `${customer.name} - ${customer.phone}`;
-        
-        // Hide dropdown
-        const select = document.getElementById('reminder-customer-select');
-        select.style.display = 'none';
-        
-        // Show customer info and enable send button
-        this.displaySelectedCustomerInfo(customer);
-        
-        const sendBtn = document.getElementById('send-individual-reminder');
-        sendBtn.disabled = false;
-    }
-
-    displaySelectedCustomerInfo(customer) {
-        const infoContainer = document.getElementById('selected-customer-info');
-        const nameElement = document.getElementById('selected-customer-name');
-        const detailsElement = document.getElementById('selected-customer-details');
-        
-        nameElement.textContent = customer.name;
-        
-        // Get payment data for this customer
-        const customerPaymentData = this.paymentData.find(data => data.customer.id === customer.id);
-        
-        if (customerPaymentData) {
-            const monthName = new Date(this.currentMonth + '-01').toLocaleDateString('en-IN', { 
-                month: 'long', 
-                year: 'numeric' 
-            });
-            
-            detailsElement.innerHTML = `
-                <div>📞 Phone: ${customer.phone}</div>
-                <div>📅 Month: ${monthName}</div>
-                <div>💰 Total Amount: ₹${customerPaymentData.totalAmount}</div>
-                <div>✅ Paid Amount: ₹${customerPaymentData.paidAmount}</div>
-                <div>🔔 Balance: ₹${customerPaymentData.balanceAmount}</div>
-                <div>📊 Status: ${customerPaymentData.paymentStatus.charAt(0).toUpperCase() + customerPaymentData.paymentStatus.slice(1)}</div>
-                <div>💬 Telegram: ${customer.tg_chat_id}</div>
-            `;
-        } else {
-            detailsElement.innerHTML = `
-                <div>📞 Phone: ${customer.phone}</div>
-                <div>💬 Telegram: ${customer.tg_chat_id}</div>
-                <div>⚠️ No payment data for current month</div>
-            `;
-        }
-        
-        infoContainer.style.display = 'block';
-    }
-
-    async sendIndividualReminder() {
-        if (!this.selectedCustomerForReminder) {
-            this.showError('Please select a customer first');
-            return;
-        }
-
-        const customer = this.selectedCustomerForReminder;
-        const customerPaymentData = this.paymentData.find(data => data.customer.id === customer.id);
-        
-        if (!customerPaymentData) {
-            this.showError('No payment data found for selected customer');
-            return;
-        }
-
-        // Check if reminder is needed
-        if (customerPaymentData.paymentStatus === 'paid') {
-            if (!confirm(`${customer.name} has already paid. Send reminder anyway?`)) {
-                return;
-            }
-        }
-
-        try {
-            this.showLoading(true);
-            
-            await this.sendPaymentReminderToCustomer(customerPaymentData);
-            
-            this.showSuccess(`Payment reminder sent successfully to ${customer.name}!`);
-            
-            // Clear selection after successful send
-            this.clearReminderSelection();
-            
-        } catch (error) {
-            console.error('Error sending individual reminder:', error);
-            this.showError(`Failed to send reminder to ${customer.name}`);
-        } finally {
-            this.showLoading(false);
-        }
-    }
-
-    clearReminderSelection() {
-        this.selectedCustomerForReminder = null;
-        
-        // Clear search input
-        const searchInput = document.getElementById('reminder-customer-search');
-        searchInput.value = '';
-        
-        // Hide dropdown and customer info
-        const select = document.getElementById('reminder-customer-select');
-        select.style.display = 'none';
-        
-        const infoContainer = document.getElementById('selected-customer-info');
-        infoContainer.style.display = 'none';
-        
-        // Disable send button
-        const sendBtn = document.getElementById('send-individual-reminder');
-        sendBtn.disabled = true;
-        
-        // Reset dropdown to default state
-        this.populateCustomerDropdownForReminder();
     }
 }
 

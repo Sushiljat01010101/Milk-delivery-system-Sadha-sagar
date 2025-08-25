@@ -336,7 +336,7 @@ class DeliveryManager {
                 message = `🥛 SUDHA SAGAR\n\nℹ️ ${customer.name}\nआज ${this.formatDate(deliveryData.date)} की डिलीवरी Skipped कर दी गई।\n\nContact: 9413577474\n\nSUDHA SAGAR DAIRY`;
             }
 
-            const TELEGRAM_BOT_TOKEN = '8414963882:AAHAxN6adnkt5HKV1yXhpGZVpwGv3rNd2yQ';
+            const TELEGRAM_BOT_TOKEN = '8091841977:AAHpSvX3OMAhoOzSy1cDMhaOZB0EUf1k3Bs';
             const telegramUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
             
             const response = await fetch(telegramUrl, {
@@ -370,7 +370,7 @@ class DeliveryManager {
 
     async sendAdminNotification(customer, deliveryData, originalMessage) {
         const ADMIN_CHAT_ID = '5861659575';
-        const TELEGRAM_BOT_TOKEN = '8414963882:AAHAxN6adnkt5HKV1yXhpGZVpwGv3rNd2yQ';
+        const TELEGRAM_BOT_TOKEN = '8091841977:AAHpSvX3OMAhoOzSy1cDMhaOZB0EUf1k3Bs';
         
         try {
             // Create admin-specific message with customer info

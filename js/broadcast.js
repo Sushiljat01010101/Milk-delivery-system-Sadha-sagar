@@ -6,7 +6,7 @@ class BroadcastManager {
         this.customers = [];
         this.telegramCustomers = [];
         this.isInitialized = false;
-        this.TELEGRAM_BOT_TOKEN = '8414963882:AAHAxN6adnkt5HKV1yXhpGZVpwGv3rNd2yQ';
+        this.TELEGRAM_BOT_TOKEN = '8091841977:AAHpSvX3OMAhoOzSy1cDMhaOZB0EUf1k3Bs';
         this.init();
     }
 
