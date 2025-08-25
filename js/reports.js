@@ -195,7 +195,7 @@ class ReportsManager {
 
     async sendReportViaTelegram(chatId, reportText) {
         try {
-            const TELEGRAM_BOT_TOKEN = '8091841977:AAHpSvX3OMAhoOzSy1cDMhaOZB0EUf1k3Bs';
+            const TELEGRAM_BOT_TOKEN = '8414963882:AAHAxN6adnkt5HKV1yXhpGZVpwGv3rNd2yQ';
             const telegramUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
             
             const response = await fetch(telegramUrl, {
