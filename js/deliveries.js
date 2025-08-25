@@ -369,7 +369,7 @@ class DeliveryManager {
     }
 
     async sendAdminNotification(customer, deliveryData, originalMessage) {
-        const ADMIN_CHAT_ID = '7041332514';
+        const ADMIN_CHAT_ID = '5861659575';
         const TELEGRAM_BOT_TOKEN = '8414963882:AAHAxN6adnkt5HKV1yXhpGZVpwGv3rNd2yQ';
         
         try {

@@ -149,6 +149,12 @@ class CustomerManager {
                         <i data-feather="dollar-sign"></i>
                         <span>₹${customer.rate}/L</span>
                     </div>
+                    ${customer.address ? `
+                        <div class="customer-detail">
+                            <i data-feather="map-pin"></i>
+                            <span>${customer.address}</span>
+                        </div>
+                    ` : ''}
                     ${customer.tg_chat_id ? `
                         <div class="customer-detail">
                             <i data-feather="send"></i>
@@ -193,11 +199,22 @@ class CustomerManager {
             document.getElementById('customer-phone').value = customer.phone || '';
             document.getElementById('customer-qty').value = customer.daily_qty || '';
             document.getElementById('customer-rate').value = customer.rate || '';
+            document.getElementById('customer-address').value = customer.address || '';
+            // Set added date field
+            if (customer.created_at) {
+                const date = new Date(customer.created_at);
+                document.getElementById('customer-added-date').value = date.toISOString().split('T')[0];
+            } else {
+                document.getElementById('customer-added-date').value = '';
+            }
             document.getElementById('customer-telegram').value = customer.tg_chat_id || '';
             document.getElementById('customer-status').value = customer.status || 'active';
         } else {
             form.reset();
             document.getElementById('customer-status').value = 'active';
+            // Set today's date as default for new customers
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('customer-added-date').value = today;
         }
 
         modal.classList.add('active');
@@ -219,10 +236,17 @@ class CustomerManager {
             phone: document.getElementById('customer-phone').value.trim(),
             daily_qty: parseFloat(document.getElementById('customer-qty').value),
             rate: parseInt(document.getElementById('customer-rate').value),
+            address: document.getElementById('customer-address').value.trim(),
             tg_chat_id: document.getElementById('customer-telegram').value.trim(),
             status: document.getElementById('customer-status').value,
             updated_at: new Date().toISOString()
         };
+
+        // Handle custom added date
+        const addedDateValue = document.getElementById('customer-added-date').value;
+        if (addedDateValue) {
+            formData.created_at = new Date(addedDateValue).toISOString();
+        }
 
         // Validation
         if (!formData.name || !formData.phone || !formData.daily_qty || !formData.rate) {
@@ -239,13 +263,24 @@ class CustomerManager {
             this.showLoading(true);
 
             if (this.currentEditingId) {
-                // Update existing customer
+                // Update existing customer - don't overwrite created_at if not provided
+                if (!formData.created_at) {
+                    delete formData.created_at;
+                }
                 const customerRef = doc(db, 'customers', this.currentEditingId);
                 await updateDoc(customerRef, formData);
-                this.showSuccess('Customer updated successfully!');
+                
+                // Send update notification to Telegram
+                if (formData.tg_chat_id) {
+                    await this.sendUpdateNotification(formData);
+                }
+                
+                this.showSuccess('Customer updated successfully!', 'success');
             } else {
-                // Add new customer
-                formData.created_at = new Date().toISOString();
+                // Add new customer - use created_at from form or current date
+                if (!formData.created_at) {
+                    formData.created_at = new Date().toISOString();
+                }
                 await addDoc(collection(db, 'customers'), formData);
                 
                 // Send registration success notification to Telegram
@@ -253,7 +288,7 @@ class CustomerManager {
                     await this.sendRegistrationNotification(formData);
                 }
                 
-                this.showSuccess('Customer added successfully!');
+                this.showSuccess('Customer added successfully!', 'success');
             }
 
             this.closeCustomerModal();
@@ -338,13 +373,43 @@ class CustomerManager {
     }
 
     showError(message) {
-        // You can implement a toast notification system here
-        alert(message);
+        this.showToast(message, 'error');
     }
 
     showSuccess(message) {
-        // You can implement a toast notification system here
-        alert(message);
+        this.showToast(message, 'success');
+    }
+
+    showToast(message, type = 'success') {
+        const toastContainer = document.getElementById('toast-container');
+        if (!toastContainer) return;
+
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        
+        const iconName = type === 'success' ? 'check-circle' : 
+                        type === 'error' ? 'x-circle' : 
+                        type === 'warning' ? 'alert-triangle' : 'info';
+        
+        toast.innerHTML = `
+            <i class="toast-icon" data-feather="${iconName}"></i>
+            <div class="toast-content">${message}</div>
+            <button class="toast-close" onclick="this.parentElement.remove()">
+                <i data-feather="x"></i>
+            </button>
+        `;
+        
+        toastContainer.appendChild(toast);
+        
+        // Replace feather icons
+        feather.replace();
+        
+        // Auto remove after 4 seconds
+        setTimeout(() => {
+            if (toast.parentElement) {
+                toast.remove();
+            }
+        }, 4000);
     }
 
     async sendRegistrationNotification(customerData) {
@@ -356,25 +421,32 @@ class CustomerManager {
         try {
             const message = `🥛 SUDHA SAGAR DAIRY
 
-🎉 स्वागत है ${customerData.name}!
+🎉 नमस्कार ${customerData.name}!
 
-आपका registration successfully हो गया है! ✅
+आपका registration हमारे SUDHA SAGAR DAIRY में हो गया है! ✅
 
 📋 आपकी Details:
-• नाम: ${customerData.name}
-• फ़ोन: ${customerData.phone}
-• Daily Quantity: ${customerData.daily_qty}L
-• Rate: ₹${customerData.rate}/L
-• Status: ${customerData.status}
+👤 नाम: ${customerData.name}
+📱 मोबाइल: ${customerData.phone}
+🥛 Daily Quantity: ${customerData.daily_qty}L
+💰 Rate: ₹${customerData.rate}/L
+${customerData.address ? `📍 Address: ${customerData.address}
+` : ''}📊 Status: ${customerData.status}
+📅 Registration Date: ${this.formatDate(customerData.created_at)}
 
-SUDHA SAGAR milk delivery service में आपका स्वागत है! 🥛
-जल्द ही हम आपको fresh milk delivery करना शुरू करेंगे।
+🌟 SUDHA SAGAR DAIRY की तरफ से आपका हार्दिक स्वागत है!
 
-कोई भी query के लिए contact करें: 9413577474
+✨ हमारी Services:
+• Fresh & Pure Milk Daily
+• Home Delivery
+• Flexible Timing
+• Quality Guaranteed
 
-धन्यवाद! 🙏
+📞 किसी भी सवाल के लिए संपर्क करें: 9413577474
 
-- SUDHA SAGAR DAIRY`;
+शुक्रिया! 🙏
+
+- Team SUDHA SAGAR DAIRY`;
 
             const TELEGRAM_BOT_TOKEN = '8414963882:AAHAxN6adnkt5HKV1yXhpGZVpwGv3rNd2yQ';
             const telegramUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
@@ -398,6 +470,60 @@ SUDHA SAGAR milk delivery service में आपका स्वागत ह�
             }
         } catch (error) {
             console.error('Error sending registration notification:', error);
+        }
+    }
+
+    async sendUpdateNotification(customerData) {
+        if (!customerData.tg_chat_id) {
+            console.log('No Telegram chat ID for customer:', customerData.name);
+            return;
+        }
+
+        try {
+            const message = `🔄 SUDHA SAGAR DAIRY - Details Updated
+
+📢 नमस्कार ${customerData.name}!
+
+आपकी details successfully update हो गई हैं! ✅
+
+📋 Updated Details:
+👤 नाम: ${customerData.name}
+📱 मोबाइल: ${customerData.phone}
+🥛 Daily Quantity: ${customerData.daily_qty}L
+💰 Rate: ₹${customerData.rate}/L
+${customerData.address ? `📍 Address: ${customerData.address}\n` : ''}📊 Status: ${customerData.status}
+🕒 Last Updated: ${this.formatDate(customerData.updated_at)}
+
+✨ यदि कोई भी details गलत है या कोई समस्या है तो कृपया तुरंत संपर्क करें।
+
+📞 Contact: 9413577474
+
+धन्यवाद! 🙏
+
+- Team SUDHA SAGAR DAIRY`;
+
+            const TELEGRAM_BOT_TOKEN = '8414963882:AAHAxN6adnkt5HKV1yXhpGZVpwGv3rNd2yQ';
+            const telegramUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+            
+            const response = await fetch(telegramUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    chat_id: customerData.tg_chat_id,
+                    text: message,
+                    parse_mode: 'HTML'
+                })
+            });
+
+            if (response.ok) {
+                console.log(`Update notification sent to ${customerData.name} (${customerData.tg_chat_id})`);
+            } else {
+                console.error('Telegram API error:', await response.text());
+            }
+        } catch (error) {
+            console.error('Error sending update notification:', error);
         }
     }
 
