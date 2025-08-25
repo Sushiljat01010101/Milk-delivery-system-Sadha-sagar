@@ -7,6 +7,21 @@
     <link rel="stylesheet" href="css/styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://unpkg.com/feather-icons"></script>
+    
+    <!-- GitHub Pages SPA redirect script -->
+    <script type="text/javascript">
+        // Single Page Apps for GitHub Pages
+        (function(l) {
+            if (l.search[1] === '/' ) {
+                var decoded = l.search.slice(1).split('&').map(function(s) { 
+                    return s.replace(/~and~/g, '&')
+                }).join('?');
+                window.history.replaceState(null, null,
+                    l.pathname.slice(0, -1) + decoded + l.hash
+                );
+            }
+        }(window.location))
+    </script>
 </head>
 <body>
     <!-- Login Screen -->
@@ -285,47 +300,6 @@
                     </div>
                 </div>
 
-                <!-- Individual Payment Reminder Section -->
-                <div class="individual-reminder-section">
-                    <div class="reminder-card">
-                        <div class="reminder-header">
-                            <h3>Send Individual Payment Reminder</h3>
-                            <p>Search and select a customer to send payment reminder</p>
-                        </div>
-                        <div class="reminder-form">
-                            <div class="form-group">
-                                <label for="reminder-customer-search">Search Customer:</label>
-                                <div class="search-dropdown-container">
-                                    <div class="search-bar">
-                                        <i data-feather="search"></i>
-                                        <input type="text" id="reminder-customer-search" placeholder="Type customer name or phone...">
-                                    </div>
-                                    <select id="reminder-customer-select" style="display: none;">
-                                        <option value="">Select a customer</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="reminder-actions">
-                                <button id="send-individual-reminder" class="btn btn-warning" disabled>
-                                    <i data-feather="bell"></i>
-                                    Send Payment Reminder
-                                </button>
-                                <button id="clear-reminder-selection" class="btn btn-secondary">
-                                    <i data-feather="x"></i>
-                                    Clear Selection
-                                </button>
-                            </div>
-                            <div id="selected-customer-info" class="selected-customer-info" style="display: none;">
-                                <h4>Selected Customer:</h4>
-                                <div class="customer-preview">
-                                    <div class="customer-name" id="selected-customer-name"></div>
-                                    <div class="customer-details" id="selected-customer-details"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <div class="payments-table-container">
                     <div class="table-header">
                         <h3>Customer Payment Details</h3>
@@ -548,6 +522,11 @@
     </div>
 
     <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-functions-compat.js"></script>
+    
     <script type="module" src="js/firebase-config.js"></script>
     <script type="module" src="js/auth.js"></script>
     <script type="module" src="js/customers.js"></script>
