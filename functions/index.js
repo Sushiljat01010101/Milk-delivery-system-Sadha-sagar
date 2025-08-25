@@ -6,7 +6,7 @@ const axios = require('axios');
 admin.initializeApp();
 
 // Telegram Bot Token
-const TELEGRAM_BOT_TOKEN = '8091841977:AAHpSvX3OMAhoOzSy1cDMhaOZB0EUf1k3Bs';
+const TELEGRAM_BOT_TOKEN = '8414963882:AAHAxN6adnkt5HKV1yXhpGZVpwGv3rNd2yQ';
 const ADMIN_CHAT_ID = '5861659575';
 
 // Helper function to send admin notifications
