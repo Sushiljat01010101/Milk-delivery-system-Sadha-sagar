@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUDHA SAGAR - Milk Delivery Management</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="login-screen" class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <img src="sudha-sagar-logo.jpg" alt="SUDHA SAGAR" class="login-logo">
+                <h1>SUDHA SAGAR</h1>
+                <p>Admin Login</p>
+            </div>
+            <form id="login-form" class="login-form">
+                <div class="input-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" required>
+                </div>
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Login</button>
+            </form>
+            <div id="login-error" class="error-message"></div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="app" class="app-container" style="display: none;">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="header-left">
+                    <button class="mobile-menu-toggle" id="mobile-menu-toggle">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+                    <img src="sudha-sagar-logo.jpg" alt="SUDHA SAGAR" class="header-logo">
+                    <h1>SUDHA SAGAR</h1>
+                </div>
+                <div class="header-right">
+                    <span id="admin-email" class="admin-email"></span>
+                    <button id="logout-btn" class="btn btn-secondary">
+                        <i data-feather="log-out"></i>
+                        <span class="btn-text">Logout</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <div class="nav-overlay" id="nav-overlay"></div>
+        <nav class="nav" id="navigation">
+            <div class="nav-content">
+                <button class="nav-item active" data-view="dashboard">
+                    <i data-feather="home"></i>
+                    <span class="nav-text">Dashboard</span>
+                </button>
+                <button class="nav-item" data-view="customers">
+                    <i data-feather="users"></i>
+                    <span class="nav-text">Customers</span>
+                </button>
+                <button class="nav-item" data-view="deliveries">
+                    <i data-feather="truck"></i>
+                    <span class="nav-text">Deliveries</span>
+                </button>
+                <button class="nav-item" data-view="payments">
+                    <i data-feather="credit-card"></i>
+                    <span class="nav-text">Payment Management</span>
+                </button>
+                <button class="nav-item" data-view="reports">
+                    <i data-feather="file-text"></i>
+                    <span class="nav-text">Reports</span>
+                </button>
+                <button class="nav-item" data-view="customer-details">
+                    <i data-feather="calendar"></i>
+                    <span class="nav-text">Customer Details</span>
+                </button>
+                <button class="nav-item" data-view="broadcast">
+                    <i data-feather="send"></i>
+                    <span class="nav-text">Broadcast</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main">
+            <!-- Dashboard View -->
+            <div id="dashboard-view" class="view active">
+                <div class="view-header">
+                    <h2>Dashboard Overview</h2>
+                    <div class="date-display">
+                        <i data-feather="calendar"></i>
+                        <span id="current-date"></span>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i data-feather="users"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="total-customers">0</h3>
+                            <p>Total Customers</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon delivered">
+                            <i data-feather="check-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="delivered-today">0</h3>
+                            <p>Delivered Today</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon skipped">
+                            <i data-feather="x-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="skipped-today">0</h3>
+                            <p>Skipped Today</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon pending">
+                            <i data-feather="clock"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="pending-today">0</h3>
+                            <p>Pending Today</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i data-feather="droplet"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="total-milk-today">0L</h3>
+                            <p>Total Milk Today</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon revenue">
+                            <i data-feather="dollar-sign"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="total-revenue-today">₹0</h3>
+                            <p>Revenue Today</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-section">
+                    <div class="chart-card">
+                        <h3>Daily Delivery Trend</h3>
+                        <canvas id="daily-chart"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Monthly Revenue</h3>
+                        <canvas id="monthly-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customers View -->
+            <div id="customers-view" class="view">
+                <div class="view-header">
+                    <h2>Customer Management</h2>
+                    <button id="add-customer-btn" class="btn btn-primary">
+                        <i data-feather="plus"></i>
+                        Add Customer
+                    </button>
+                </div>
+
+                <div class="search-section">
+                    <div class="search-bar">
+                        <i data-feather="search"></i>
+                        <input type="text" id="customer-search" placeholder="Search customers...">
+                    </div>
+                    <div class="filters">
+                        <select id="status-filter">
+                            <option value="">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="customers-grid" id="customers-grid">
+                    <!-- Customer cards will be populated here -->
+                </div>
+            </div>
+
+            <!-- Deliveries View -->
+            <div id="deliveries-view" class="view">
+                <div class="view-header">
+                    <h2>Today's Deliveries</h2>
+                    <div class="delivery-actions">
+                        <button id="mark-all-delivered-btn" class="btn btn-success">
+                            <i data-feather="check-circle"></i>
+                            Mark All Delivered
+                        </button>
+                    </div>
+                </div>
+
+                <div class="delivery-controls">
+                    <div class="date-selector">
+                        <label for="delivery-date">Select Date:</label>
+                        <input type="date" id="delivery-date">
+                    </div>
+                    <div class="search-bar">
+                        <i data-feather="search"></i>
+                        <input type="text" id="delivery-search" placeholder="Search customers...">
+                    </div>
+                </div>
+
+                <div class="deliveries-list" id="deliveries-list">
+                    <!-- Delivery items will be populated here -->
+                </div>
+            </div>
+
+            <!-- Payment Management View -->
+            <div id="payments-view" class="view">
+                <div class="view-header">
+                    <h2>Payment Management</h2>
+                    <div class="payment-controls">
+                        <input type="month" id="payment-month" class="month-selector">
+                        <button id="refresh-payments" class="btn btn-secondary">
+                            <i data-feather="refresh-cw"></i>
+                            Refresh
+                        </button>
+                        <button id="send-payment-reminders" class="btn btn-warning">
+                            <i data-feather="bell"></i>
+                            Send Payment Reminders
+                        </button>
+                    </div>
+                </div>
+
+                <div class="payment-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon revenue">
+                            <i data-feather="dollar-sign"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="total-monthly-revenue">₹0</h3>
+                            <p>Total Monthly Revenue</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon delivered">
+                            <i data-feather="check-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="paid-customers">0</h3>
+                            <p>Paid Customers</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon pending">
+                            <i data-feather="clock"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="pending-payments">0</h3>
+                            <p>Pending Payments</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i data-feather="droplet"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="total-milk-delivered">0L</h3>
+                            <p>Total Milk Delivered</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Individual Payment Reminder Section -->
+                <div class="individual-reminder-section">
+                    <div class="reminder-card">
+                        <div class="reminder-header">
+                            <h3>Send Individual Payment Reminder</h3>
+                            <p>Search and select a customer to send payment reminder</p>
+                        </div>
+                        <div class="reminder-form">
+                            <div class="form-group">
+                                <label for="reminder-customer-search">Search Customer:</label>
+                                <div class="search-dropdown-container">
+                                    <div class="search-bar">
+                                        <i data-feather="search"></i>
+                                        <input type="text" id="reminder-customer-search" placeholder="Type customer name or phone...">
+                                    </div>
+                                    <select id="reminder-customer-select" style="display: none;">
+                                        <option value="">Select a customer</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="reminder-actions">
+                                <button id="send-individual-reminder" class="btn btn-warning" disabled>
+                                    <i data-feather="bell"></i>
+                                    Send Payment Reminder
+                                </button>
+                                <button id="clear-reminder-selection" class="btn btn-secondary">
+                                    <i data-feather="x"></i>
+                                    Clear Selection
+                                </button>
+                            </div>
+                            <div id="selected-customer-info" class="selected-customer-info" style="display: none;">
+                                <h4>Selected Customer:</h4>
+                                <div class="customer-preview">
+                                    <div class="customer-name" id="selected-customer-name"></div>
+                                    <div class="customer-details" id="selected-customer-details"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="payments-table-container">
+                    <div class="table-header">
+                        <h3>Customer Payment Details</h3>
+                        <div class="table-filters">
+                            <select id="payment-status-filter">
+                                <option value="">All Status</option>
+                                <option value="paid">Paid</option>
+                                <option value="pending">Pending</option>
+                                <option value="partial">Partial</option>
+                            </select>
+                            <div class="search-bar">
+                                <i data-feather="search"></i>
+                                <input type="text" id="payment-search" placeholder="Search customers...">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="payments-table" id="payments-table">
+                        <!-- Payment table will be populated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports View -->
+            <div id="reports-view" class="view">
+                <div class="view-header">
+                    <h2>Reports</h2>
+                </div>
+
+                <div class="report-form">
+                    <div class="form-group">
+                        <label for="report-customer">Select Customer:</label>
+                        <select id="report-customer">
+                            <option value="">Select a customer</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="report-month">Select Month:</label>
+                        <input type="month" id="report-month">
+                    </div>
+                    <div class="report-buttons">
+                        <button id="generate-report-btn" class="btn btn-primary">
+                            <i data-feather="file-text"></i>
+                            Generate & Send Report
+                        </button>
+                        <button id="send-all-reports-btn" class="btn btn-success">
+                            <i data-feather="send"></i>
+                            Send Reports to All Customers
+                        </button>
+                    </div>
+                </div>
+
+                <div id="report-preview" class="report-preview" style="display: none;">
+                    <h3>Report Preview</h3>
+                    <div id="report-content"></div>
+                </div>
+            </div>
+            
+            <!-- Customer Details View -->
+            <div id="customer-details-view" class="view">
+                <div class="view-header">
+                    <h2>Customer Monthly Details</h2>
+                </div>
+
+                <div class="customer-details-form">
+                    <div class="form-group">
+                        <label for="details-customer">Select Customer:</label>
+                        <select id="details-customer">
+                            <option value="">Select a customer</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="details-month">Select Month:</label>
+                        <input type="month" id="details-month">
+                    </div>
+                    <div class="details-buttons">
+                        <button id="load-details-btn" class="btn btn-primary">
+                            <i data-feather="search"></i>
+                            Load Details
+                        </button>
+                    </div>
+                </div>
+
+                <div id="customer-details-table-container" class="details-table-container" style="display: none;">
+                    <div class="table-header">
+                        <h3 id="details-table-title">Customer Monthly Details</h3>
+                        <button id="send-details-to-customer" class="btn btn-success">
+                            <i data-feather="send"></i>
+                            Send to Customer
+                        </button>
+                    </div>
+                    <div class="details-table" id="customer-details-table">
+                        <!-- Table will be populated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Broadcast View -->
+            <div id="broadcast-view" class="view">
+                <div class="view-header">
+                    <h2>Broadcast Messages</h2>
+                    <p>Send messages and images to all customers via Telegram</p>
+                </div>
+
+                <div class="broadcast-form">
+                    <div class="form-group">
+                        <label for="broadcast-message">Message:</label>
+                        <textarea id="broadcast-message" rows="6" placeholder="Enter your message here..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="broadcast-image">Image (Optional):</label>
+                        <input type="file" id="broadcast-image" accept="image/*">
+                        <div id="image-preview" class="image-preview" style="display: none;">
+                            <img id="preview-img" src="" alt="Preview">
+                            <button type="button" id="remove-image" class="btn btn-secondary btn-sm">Remove Image</button>
+                        </div>
+                    </div>
+                    
+                    <div class="broadcast-recipients">
+                        <h3>Recipients</h3>
+                        <div id="recipients-info" class="recipients-info">
+                            <div class="recipients-stats">
+                                <span id="total-customers-count">0</span> total customers, 
+                                <span id="telegram-customers-count">0</span> with Telegram Chat ID
+                            </div>
+                            <button id="refresh-recipients" class="btn btn-secondary btn-sm">
+                                <i data-feather="refresh-cw"></i>
+                                Refresh
+                            </button>
+                        </div>
+                        <div id="recipients-list" class="recipients-list">
+                            <!-- List of customers with Telegram IDs will be shown here -->
+                        </div>
+                    </div>
+                    
+                    <div class="broadcast-actions">
+                        <button id="send-broadcast-btn" class="btn btn-primary" disabled>
+                            <i data-feather="send"></i>
+                            Send Broadcast
+                        </button>
+                        <button id="clear-broadcast-btn" class="btn btn-secondary">
+                            <i data-feather="x"></i>
+                            Clear
+                        </button>
+                    </div>
+                </div>
+
+                <div id="broadcast-progress" class="broadcast-progress" style="display: none;">
+                    <div class="progress-header">
+                        <h3>Sending Broadcast...</h3>
+                        <div class="progress-stats">
+                            <span id="progress-sent">0</span> / <span id="progress-total">0</span> sent
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div id="progress-fill" class="progress-fill"></div>
+                    </div>
+                    <div id="progress-log" class="progress-log"></div>
+                </div>
+
+                <div id="broadcast-history" class="broadcast-history">
+                    <h3>Recent Broadcasts</h3>
+                    <div id="history-list" class="history-list">
+                        <!-- Previous broadcast history will be shown here -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Customer Modal -->
+    <div id="customer-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Add Customer</h3>
+                <button id="close-modal" class="close-btn">
+                    <i data-feather="x"></i>
+                </button>
+            </div>
+            <form id="customer-form">
+                <div class="form-group">
+                    <label for="customer-name">Name:</label>
+                    <input type="text" id="customer-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="customer-phone">Mobile:</label>
+                    <input type="tel" id="customer-phone" required>
+                </div>
+                <div class="form-group">
+                    <label for="customer-qty">Daily Quantity (L):</label>
+                    <input type="number" id="customer-qty" step="0.1" min="0.1" required>
+                </div>
+                <div class="form-group">
+                    <label for="customer-rate">Rate per Liter (₹):</label>
+                    <input type="number" id="customer-rate" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="customer-telegram">Telegram Chat ID:</label>
+                    <input type="text" id="customer-telegram" placeholder="Optional">
+                </div>
+                <div class="form-group">
+                    <label for="customer-status">Status:</label>
+                    <select id="customer-status">
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" id="cancel-modal" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <p>Loading...</p>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module" src="js/firebase-config.js"></script>
+    <script type="module" src="js/auth.js"></script>
+    <script type="module" src="js/customers.js"></script>
+    <script type="module" src="js/deliveries.js"></script>
+    <script type="module" src="js/reports.js"></script>
+    <script type="module" src="js/payments.js"></script>
+    <script type="module" src="js/customer-details.js"></script>
+    <script type="module" src="js/broadcast.js"></script>
+    <script type="module" src="js/dashboard.js"></script>
+    <script type="module" src="js/app.js"></script>
+
+    <script>
+        // Initialize Feather icons
+        feather.replace();
+    </script>
+</body>
+</html>
